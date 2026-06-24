@@ -1,0 +1,30 @@
+# Environment & secrets — NEVER commit
+.env
+.env.*
+*.env
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+package-lock.json
+dist/
+build/
+
+# Exports (CSV files contain sensitive payroll data)
+exports/
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# TypeScript build
+*.js.map
+*.d.ts
+tsconfig.tsbuildinfo
