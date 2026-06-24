@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<title>Rem0Beg Pay — Earned Wage Access</title>
+<meta name="description" content="Access your already-earned wages instantly. Not a loan. No interest. Just your money, when you need it."/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        brand: { 400:'#34d399', 500:'#10b981', 600:'#059669', 700:'#047857', 900:'#064e3b' },
+      },
+      fontFamily: { sans: ['Inter','system-ui','sans-serif'] }
+    }
+  }
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{font-family:'Inter',system-ui,sans-serif;background:#020617;color:#f8fafc;overflow-x:hidden}
+  ::-webkit-scrollbar{width:4px}
+  ::-webkit-scrollbar-track{background:#0f172a}
+  ::-webkit-scrollbar-thumb{background:#1e293b;border-radius:4px}
+  .glass{background:rgba(15,23,42,0.8);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.06)}
+  .card{background:#0f172a;border:1px solid #1e293b;border-radius:16px}
+  .gradient-text{background:linear-gradient(135deg,#34d399,#10b981,#6ee7b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  .glow{box-shadow:0 0 40px rgba(16,185,129,0.25),0 20px 60px rgba(0,0,0,0.5)}
+  .btn-primary{background:linear-gradient(135deg,#10b981,#059669);border:none;cursor:pointer;transition:all .2s;font-weight:700}
+  .btn-primary:hover{transform:translateY(-1px);box-shadow:0 12px 32px rgba(16,185,129,0.4)}
+  .btn-primary:active{transform:translateY(0)}
+  .btn-secondary{background:transparent;border:1px solid #334155;cursor:pointer;transition:all .2s;color:#94a3b8}
+  .btn-secondary:hover{border-color:#10b981;color:#10b981}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#10b981;cursor:pointer;box-shadow:0 0 0 5px rgba(16,185,129,0.2),0 2px 8px rgba(0,0,0,0.5)}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px;border-radius:50%;background:#10b981;border:none;cursor:pointer;box-shadow:0 0 0 5px rgba(16,185,129,0.2)}
+  .status-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .dot{width:6px;height:6px;border-radius:50%}
+  .tab{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:none;color:#64748b;background:transparent}
+  .tab.active{background:#1e293b;color:#10b981}
+  .nav-tab{padding:10px 0;border-bottom:2px solid transparent;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;color:#64748b;background:none;border-top:none;border-left:none;border-right:none}
+  .nav-tab.active{border-bottom-color:#10b981;color:#10b981}
+  .fade-in{animation:fadeIn .4s ease forwards}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .slide-up{animation:slideUp .35s ease forwards}
+  @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+  .pulse-ring{animation:pulseRing 2s ease-out infinite}
+  @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(16,185,129,0.4)}70%{box-shadow:0 0 0 16px rgba(16,185,129,0)}100%{box-shadow:0 0 0 0 rgba(16,185,129,0)}}
+  @media(max-width:640px){.desktop-only{display:none!important}}
+  @media(min-width:641px){.mobile-only{display:none!important}}
+  input[type=number]::-webkit-outer-spin-button,
+  input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none}
+  .skeleton{background:linear-gradient(90deg,#1e293b 25%,#334155 50%,#1e293b 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+  .toast{position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;animation:toastIn .3s ease;max-width:320px}
+  @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+</style>
+</head>
+<body class="dark">
+
+<!-- ════════════════════════ APP ROOT ════════════════════════ -->
+<div id="app">
+
+  <!-- ── LOADING SCREEN ──────────────────────────────────── -->
+  <div id="loadingScreen" class="fixed inset-0 flex flex-col items-center justify-center z-50" style="background:#020617">
+    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-5 pulse-ring" style="background:linear-gradient(135deg,#10b981,#059669)">
+      <svg width="32" height="32" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <p class="text-white font-black text-2xl mb-1">Rem0Beg Pay</p>
+    <p class="text-slate-400 text-sm">Loading your earnings dashboard…</p>
+    <div class="mt-6 w-48 h-1 bg-slate-800 rounded-full overflow-hidden">
+      <div id="loadBar" class="h-full rounded-full" style="background:#10b981;width:0%;transition:width .8s ease"></div>
+    </div>
+  </div>
+
+  <!-- ── MAIN APP (hidden until loaded) ─────────────────── -->
+  <div id="mainApp" class="hidden" style="min-height:100vh">
+
+    <!-- ══ DESKTOP SIDEBAR LAYOUT ══════════════════════════ -->
+    <div class="flex min-h-screen">
+
+      <!-- Sidebar (desktop only) -->
+      <aside class="desktop-only w-64 flex-shrink-0" style="background:#060d1a;border-right:1px solid #1e293b;position:sticky;top:0;height:100vh;overflow-y:auto">
+        <div class="p-6">
+          <!-- Logo -->
+          <div class="flex items-center gap-3 mb-8">
+            <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:linear-gradient(135deg,#10b981,#059669)">
+              <svg width="20" height="20" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <p class="text-white font-black text-base leading-none">Rem0Beg</p>
+              <p class="text-brand-500 text-xs font-semibold">Pay</p>
+            </div>
+          </div>
+
+          <!-- Nav items -->
+          <nav class="space-y-1">
+            <button onclick="showView('dashboard')" id="nav-dashboard" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left nav-item active-nav">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+              Dashboard
+            </button>
+            <button onclick="showView('withdraw')" id="nav-withdraw" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left nav-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              Withdraw
+            </button>
+            <button onclick="showView('history')" id="nav-history" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left nav-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              History
+            </button>
+            <button onclick="showView('profile')" id="nav-profile" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-semibold transition-all text-left nav-item">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Profile
+            </button>
+          </nav>
+
+          <!-- User card at bottom -->
+          <div class="mt-8 p-3 rounded-xl" style="background:#0f172a;border:1px solid #1e293b">
+            <div class="flex items-center gap-3">
+              <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold text-white" style="background:linear-gradient(135deg,#10b981,#059669)">ND</div>
+              <div class="flex-1 min-w-0">
+                <p class="text-white text-xs font-semibold truncate">Nomsa Dlamini</p>
+                <p class="text-slate-500 text-xs truncate">Realvue Technologies</p>
+              </div>
+              <div class="w-2 h-2 rounded-full bg-brand-500"></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main content area -->
+      <main class="flex-1 min-w-0">
+
+        <!-- ══ MOBILE HEADER ════════════════════════════════ -->
+        <header class="mobile-only sticky top-0 z-40 px-4 py-3 flex items-center justify-between" style="background:rgba(2,6,23,0.95);backdrop-filter:blur(16px);border-bottom:1px solid #1e293b">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background:linear-gradient(135deg,#10b981,#059669)">
+              <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <span class="text-white font-black text-sm">Rem0Beg Pay</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="status-badge" style="background:rgba(16,185,129,0.15);color:#10b981"><span class="dot" style="background:#10b981"></span>Active</span>
+            <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold" style="background:#1e293b;color:#10b981">ND</div>
+          </div>
+        </header>
+
+        <!-- ══ VIEW CONTAINER ══════════════════════════════ -->
+        <div class="p-4 sm:p-6 lg:p-8 max-w-5xl mx-auto">
+
+          <!-- ─── VIEW: DASHBOARD ────────────────────────── -->
+          <div id="view-dashboard" class="view-panel fade-in">
+            <!-- Greeting -->
+            <div class="mb-6">
+              <h1 class="text-white font-black text-2xl sm:text-3xl">Good evening, Nomsa 👋</h1>
+              <p class="text-slate-400 text-sm mt-1">Here's your earnings snapshot for <span class="text-brand-500 font-semibold">June 2026</span></p>
+            </div>
+
+            <!-- Stats row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+              <div class="card p-4">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Earned MTD</p>
+                <p class="text-white font-black text-xl">R8,500</p>
+                <p class="text-brand-500 text-xs mt-1">↑ 12% vs last month</p>
+              </div>
+              <div class="card p-4">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Available</p>
+                <p class="text-brand-400 font-black text-xl">R625</p>
+                <p class="text-slate-500 text-xs mt-1">25% cap applied</p>
+              </div>
+              <div class="card p-4">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Withdrawn</p>
+                <p class="text-white font-black text-xl">R1,500</p>
+                <p class="text-slate-500 text-xs mt-1">2 transactions</p>
+              </div>
+              <div class="card p-4">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-2">Month Cycle</p>
+                <p class="text-white font-black text-xl">Day 24</p>
+                <p class="text-slate-500 text-xs mt-1">Recon in 6 days</p>
+              </div>
+            </div>
+
+            <!-- Main balance card -->
+            <div class="rounded-2xl p-6 mb-5 glow relative overflow-hidden" style="background:linear-gradient(135deg,#064e3b 0%,#065f46 60%,#047857 100%)">
+              <div class="absolute top-0 right-0 w-40 h-40 rounded-full opacity-10" style="background:radial-gradient(circle,#34d399,transparent);transform:translate(30%,-30%)"></div>
+              <div class="relative z-10">
+                <div class="flex justify-between items-start mb-5">
+                  <div>
+                    <p class="text-emerald-300/60 text-xs font-semibold uppercase tracking-widest mb-1">Earned So Far This Month</p>
+                    <p class="text-white font-black text-4xl sm:text-5xl tracking-tight">R8,500<span class="text-emerald-400 text-2xl">.00</span></p>
+                    <p class="text-emerald-300/50 text-xs mt-1.5">Based on 24 days of shifts logged</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-emerald-300/60 text-xs font-semibold uppercase tracking-widest mb-1">Cap</p>
+                    <div class="w-12 h-12 rounded-xl border border-emerald-400/30 flex items-center justify-center" style="background:rgba(16,185,129,0.15)">
+                      <span class="text-emerald-400 font-black text-lg">25%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="mb-1">
+                  <div class="flex justify-between text-xs text-emerald-300/50 mb-2">
+                    <span>R1,500 used of R2,125 cap</span>
+                    <span>70.6%</span>
+                  </div>
+                  <div class="h-2 rounded-full overflow-hidden" style="background:rgba(0,0,0,0.3)">
+                    <div class="h-full rounded-full" style="width:70.6%;background:linear-gradient(90deg,#34d399,#10b981)"></div>
+                  </div>
+                </div>
+
+                <!-- Available callout -->
+                <div class="mt-4 p-3 rounded-xl flex items-center justify-between" style="background:rgba(0,0,0,0.25)">
+                  <div>
+                    <p class="text-emerald-300/60 text-xs font-semibold uppercase tracking-widest mb-0.5">Available to Withdraw Now</p>
+                    <p class="text-white font-black text-2xl">R625.00</p>
+                  </div>
+                  <button onclick="showView('withdraw')" class="btn-primary px-4 py-2.5 rounded-xl text-white text-sm">
+                    Withdraw →
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Recent activity -->
+            <div class="card p-5 mb-5">
+              <div class="flex items-center justify-between mb-4">
+                <p class="text-white font-bold text-sm">Recent Withdrawals</p>
+                <button onclick="showView('history')" class="text-brand-500 text-xs font-semibold">View all →</button>
+              </div>
+              <div id="dashTxnList" class="space-y-3"></div>
+            </div>
+
+            <!-- Payday timeline -->
+            <div class="card p-5">
+              <p class="text-white font-bold text-sm mb-4">June 2026 Payroll Timeline</p>
+              <div class="relative">
+                <div class="absolute left-3 top-0 bottom-0 w-px" style="background:#1e293b"></div>
+                <div class="space-y-4">
+                  <div class="flex gap-4 items-start relative">
+                    <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center z-10" style="background:#10b981"><svg width="12" height="12" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div><p class="text-white text-sm font-semibold">Cycle Started</p><p class="text-slate-500 text-xs">1 June 2026 — Daily accruals began</p></div>
+                  </div>
+                  <div class="flex gap-4 items-start relative">
+                    <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center z-10" style="background:#10b981"><svg width="12" height="12" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+                    <div><p class="text-white text-sm font-semibold">Withdrawals Made</p><p class="text-slate-500 text-xs">8 June &amp; 14 June — R1,500 total drawn</p></div>
+                  </div>
+                  <div class="flex gap-4 items-start relative">
+                    <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center z-10 pulse-ring" style="background:#1e293b;border:2px solid #10b981"><div class="w-2 h-2 rounded-full" style="background:#10b981"></div></div>
+                    <div><p class="text-brand-400 text-sm font-semibold">Today — Day 24</p><p class="text-slate-500 text-xs">R625 still available to withdraw</p></div>
+                  </div>
+                  <div class="flex gap-4 items-start relative opacity-40">
+                    <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center z-10" style="background:#1e293b;border:1px solid #334155"><span class="text-slate-400 text-xs font-bold">23</span></div>
+                    <div><p class="text-slate-300 text-sm font-semibold">Month-End Reconciliation</p><p class="text-slate-500 text-xs">23 June — Payroll deduction exported</p></div>
+                  </div>
+                  <div class="flex gap-4 items-start relative opacity-40">
+                    <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center z-10" style="background:#1e293b;border:1px solid #334155"><span class="text-slate-400 text-xs font-bold">25</span></div>
+                    <div><p class="text-slate-300 text-sm font-semibold">Payday</p><p class="text-slate-500 text-xs">25 June — Net salary paid (EWA deducted)</p></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ─── VIEW: WITHDRAW ─────────────────────────── -->
+          <div id="view-withdraw" class="view-panel hidden fade-in">
+            <div class="mb-6">
+              <h1 class="text-white font-black text-2xl sm:text-3xl">Withdraw Earnings</h1>
+              <p class="text-slate-400 text-sm mt-1">Select an amount — funds arrive in minutes</p>
+            </div>
+
+            <div class="max-w-md mx-auto">
+              <!-- Balance summary -->
+              <div class="rounded-2xl p-5 mb-5" style="background:linear-gradient(135deg,#064e3b,#065f46)">
+                <div class="flex justify-between mb-3">
+                  <div>
+                    <p class="text-emerald-300/60 text-xs uppercase tracking-wider mb-1">Available Now</p>
+                    <p id="availDisplay" class="text-white font-black text-3xl">R625.00</p>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-emerald-300/60 text-xs uppercase tracking-wider mb-1">Bank Account</p>
+                    <p class="text-white text-sm font-semibold">Capitec</p>
+                    <p class="text-emerald-400 text-xs">****4829</p>
+                  </div>
+                </div>
+                <div class="h-1.5 rounded-full overflow-hidden" style="background:rgba(0,0,0,0.3)">
+                  <div id="availBar" class="h-full rounded-full transition-all duration-300" style="width:29.4%;background:#34d399"></div>
+                </div>
+                <p class="text-emerald-300/40 text-xs mt-1.5">R625 of R2,125 cap remaining</p>
+              </div>
+
+              <!-- Amount input panel -->
+              <div class="card p-5 mb-4">
+                <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Select Amount</p>
+
+                <!-- Big amount display -->
+                <div class="flex items-center gap-2 mb-5 p-4 rounded-xl" style="background:#060d1a;border:1px solid #1e293b">
+                  <span class="text-slate-400 text-2xl font-bold">R</span>
+                  <input id="amountInput" type="number" value="300" min="16" max="625" step="50"
+                    class="flex-1 bg-transparent text-white font-black text-4xl outline-none border-none min-w-0"
+                    oninput="updateSlider(this.value)" />
+                  <div class="text-right">
+                    <p class="text-slate-600 text-xs">Max</p>
+                    <p class="text-brand-500 text-xs font-bold">R625</p>
+                  </div>
+                </div>
+
+                <!-- Slider -->
+                <div class="mb-4">
+                  <input id="withdrawSlider" type="range" min="50" max="625" step="50" value="300"
+                    oninput="updateAmount(this.value)"
+                    class="w-full mb-3"
+                    style="background:linear-gradient(to right,#10b981 0%,#10b981 48%,#1e293b 48%,#1e293b 100%)"/>
+                  <!-- Quick select -->
+                  <div class="grid grid-cols-4 gap-2">
+                    <button onclick="setQuick(0.25)" class="quick-btn py-2 rounded-lg text-xs font-semibold border border-slate-700 text-slate-400 transition-all">25%</button>
+                    <button onclick="setQuick(0.50)" class="quick-btn py-2 rounded-lg text-xs font-semibold border border-slate-700 text-slate-400 transition-all">50%</button>
+                    <button onclick="setQuick(0.75)" class="quick-btn py-2 rounded-lg text-xs font-semibold border border-slate-700 text-slate-400 transition-all">75%</button>
+                    <button onclick="setQuick(1.00)" class="quick-btn py-2 rounded-lg text-xs font-semibold border border-brand-500 text-brand-500 transition-all">Max</button>
+                  </div>
+                </div>
+
+                <!-- Fee breakdown -->
+                <div class="rounded-xl p-4 space-y-3" style="background:#060d1a;border:1px solid #1e293b">
+                  <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider">Transaction Breakdown</p>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm">Amount requested</span>
+                    <span id="bdAmount" class="text-white font-semibold text-sm">R300.00</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <div class="flex items-center gap-1.5">
+                      <span class="text-slate-300 text-sm">Transaction fee</span>
+                      <span class="text-slate-600 text-xs bg-slate-800 px-1.5 py-0.5 rounded">flat</span>
+                    </div>
+                    <span class="text-amber-400 font-semibold text-sm">+ R15.00</span>
+                  </div>
+                  <div class="h-px" style="background:#1e293b"></div>
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-300 text-sm">Payroll deduction</span>
+                    <span id="bdDeduction" class="text-white font-bold text-sm">R315.00</span>
+                  </div>
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <span class="text-slate-300 text-sm font-semibold">You receive now</span>
+                      <p class="text-slate-500 text-xs">Instant to Capitec ****4829</p>
+                    </div>
+                    <span id="bdReceive" class="text-brand-400 font-black text-lg">R300.00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- CTA button -->
+              <button onclick="openConfirmModal()" id="withdrawBtn"
+                class="btn-primary w-full py-4 rounded-xl text-white text-sm flex items-center justify-center gap-2">
+                <svg width="18" height="18" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                  <line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+                <span id="withdrawBtnText">Withdraw R300 Instantly</span>
+              </button>
+              <p class="text-slate-600 text-xs text-center mt-2">Funds usually arrive within 2–5 minutes</p>
+            </div>
+          </div>
+
+          <!-- ─── VIEW: HISTORY ──────────────────────────── -->
+          <div id="view-history" class="view-panel hidden fade-in">
+            <div class="mb-6">
+              <h1 class="text-white font-black text-2xl sm:text-3xl">Transaction History</h1>
+              <p class="text-slate-400 text-sm mt-1">All your EWA withdrawals</p>
+            </div>
+
+            <!-- Filter tabs -->
+            <div class="flex gap-2 mb-5 overflow-x-auto pb-1">
+              <button class="tab active flex-shrink-0" onclick="filterTxns('all', this)">All</button>
+              <button class="tab flex-shrink-0" onclick="filterTxns('DISBURSED', this)">Disbursed</button>
+              <button class="tab flex-shrink-0" onclick="filterTxns('SETTLED', this)">Settled</button>
+              <button class="tab flex-shrink-0" onclick="filterTxns('PENDING', this)">Pending</button>
+            </div>
+
+            <!-- Summary row -->
+            <div class="grid grid-cols-3 gap-3 mb-5">
+              <div class="card p-4 text-center">
+                <p class="text-white font-black text-xl">6</p>
+                <p class="text-slate-400 text-xs mt-0.5">Total Txns</p>
+              </div>
+              <div class="card p-4 text-center">
+                <p class="text-white font-black text-xl">R2,300</p>
+                <p class="text-slate-400 text-xs mt-0.5">Total Drawn</p>
+              </div>
+              <div class="card p-4 text-center">
+                <p class="text-amber-400 font-black text-xl">R90</p>
+                <p class="text-slate-400 text-xs mt-0.5">Total Fees</p>
+              </div>
+            </div>
+
+            <!-- Transaction list -->
+            <div id="historyTxnList" class="space-y-3"></div>
+          </div>
+
+          <!-- ─── VIEW: PROFILE ──────────────────────────── -->
+          <div id="view-profile" class="view-panel hidden fade-in">
+            <div class="mb-6">
+              <h1 class="text-white font-black text-2xl sm:text-3xl">My Profile</h1>
+              <p class="text-slate-400 text-sm mt-1">Your account and EWA settings</p>
+            </div>
+
+            <!-- Avatar card -->
+            <div class="card p-6 mb-4 flex items-center gap-5">
+              <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-black text-white flex-shrink-0" style="background:linear-gradient(135deg,#10b981,#059669)">ND</div>
+              <div class="flex-1">
+                <p class="text-white font-black text-xl">Nomsa Dlamini</p>
+                <p class="text-slate-400 text-sm">Senior Developer</p>
+                <div class="flex items-center gap-1.5 mt-2">
+                  <span class="status-badge" style="background:rgba(16,185,129,0.15);color:#10b981"><span class="dot" style="background:#10b981"></span>Active EWA Account</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div class="card p-5 mb-4">
+              <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Employment Details</p>
+              <div class="space-y-3">
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Employer</span><span class="text-white text-sm font-semibold">Realvue Technologies (Pty) Ltd</span></div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Employee ID</span><span class="text-white text-sm font-mono">EMP-001</span></div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Payroll System</span><span class="text-white text-sm">Sage 300</span></div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Hire Date</span><span class="text-white text-sm">15 March 2024</span></div>
+              </div>
+            </div>
+
+            <div class="card p-5 mb-4">
+              <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">EWA Settings</p>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center">
+                  <span class="text-slate-400 text-sm">Withdrawal Cap</span>
+                  <span class="text-brand-400 text-sm font-bold bg-brand-500/10 px-3 py-1 rounded-lg">25% of earnings</span>
+                </div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Transaction Fee</span><span class="text-white text-sm font-semibold">R15.00 flat</span></div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Current Cycle</span><span class="text-white text-sm">June 2026</span></div>
+                <div class="flex justify-between"><span class="text-slate-400 text-sm">Recon Date</span><span class="text-white text-sm">23rd of each month</span></div>
+              </div>
+            </div>
+
+            <div class="card p-5 mb-4">
+              <p class="text-slate-400 text-xs font-semibold uppercase tracking-wider mb-4">Linked Bank Account</p>
+              <div class="flex items-center gap-4 p-3 rounded-xl" style="background:#060d1a;border:1px solid #1e293b">
+                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background:#1e293b">
+                  <svg width="18" height="18" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                </div>
+                <div class="flex-1">
+                  <p class="text-white text-sm font-semibold">Capitec Bank</p>
+                  <p class="text-slate-400 text-xs">Savings Account · ****4829</p>
+                </div>
+                <span class="status-badge" style="background:rgba(16,185,129,0.1);color:#10b981"><span class="dot" style="background:#10b981"></span>Verified</span>
+              </div>
+            </div>
+
+            <!-- Compliance note -->
+            <div class="rounded-xl p-4" style="background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.15)">
+              <p class="text-brand-400 text-xs font-semibold mb-1">POPIA &amp; BCEA Compliant</p>
+              <p class="text-slate-500 text-xs">Your data is protected under POPIA. Rem0Beg Pay operates on a strict accrual basis — only wages already earned may be accessed. This is not a credit facility.</p>
+            </div>
+          </div>
+
+        </div><!-- end view container -->
+
+        <!-- ══ MOBILE BOTTOM NAV ══════════════════════════ -->
+        <nav class="mobile-only fixed bottom-0 left-0 right-0 z-40 px-4 py-2 flex justify-around" style="background:rgba(6,13,26,0.98);backdrop-filter:blur(16px);border-top:1px solid #1e293b">
+          <button onclick="showView('dashboard')" id="mob-dashboard" class="flex flex-col items-center gap-1 px-4 py-1 mob-nav-item active-mob">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            <span class="text-xs font-semibold">Home</span>
+          </button>
+          <button onclick="showView('withdraw')" id="mob-withdraw" class="flex flex-col items-center gap-1 px-4 py-1 mob-nav-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span class="text-xs font-semibold">Withdraw</span>
+          </button>
+          <button onclick="showView('history')" id="mob-history" class="flex flex-col items-center gap-1 px-4 py-1 mob-nav-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span class="text-xs font-semibold">History</span>
+          </button>
+          <button onclick="showView('profile')" id="mob-profile" class="flex flex-col items-center gap-1 px-4 py-1 mob-nav-item">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="text-xs font-semibold">Profile</span>
+          </button>
+        </nav>
+        <!-- bottom padding for mobile nav -->
+        <div class="mobile-only h-20"></div>
+
+      </main>
+    </div><!-- end flex -->
+  </div><!-- end mainApp -->
+</div><!-- end app -->
+
+<!-- ════════ CONFIRMATION MODAL ════════════════════════════ -->
+<div id="confirmModal" class="fixed inset-0 z-50 hidden items-end sm:items-center justify-center p-4" style="background:rgba(0,0,0,0.75);backdrop-filter:blur(8px)">
+  <div class="w-full max-w-sm rounded-3xl p-6 shadow-2xl slide-up" style="background:#0f172a;border:1px solid #1e293b">
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<!-- ════════ TOAST ════════════════════════════════════════ -->
+<div id="toastEl" class="toast hidden" style="background:#1e293b;border:1px solid #334155;color:#f8fafc"></div>
+
+<style>
+  .nav-item{color:#475569}
+  .nav-item.active-nav{background:#1e293b;color:#10b981}
+  .nav-item:hover:not(.active-nav){background:#0f172a;color:#94a3b8}
+  .mob-nav-item{color:#475569;background:none;border:none;cursor:pointer;transition:color .2s}
+  .mob-nav-item.active-mob{color:#10b981}
+</style>
+
+<script>
+// ── Data ─────────────────────────────────────────────────────
+const MAX_AVAILABLE = 625;
+const FEE = 15;
+
+const transactions = [
+  { id:'txn-1', ref:'RBP-20260624-00088', amount:300, fee:15, status:'DISBURSED', date:'2026-06-24', disbDate:'2026-06-24' },
+  { id:'txn-2', ref:'RBP-20260620-00071', amount:200, fee:15, status:'PENDING',  date:'2026-06-20', disbDate:null },
+  { id:'txn-3', ref:'RBP-20260614-00055', amount:500, fee:15, status:'DISBURSED', date:'2026-06-14', disbDate:'2026-06-14' },
+  { id:'txn-4', ref:'RBP-20260608-00042', amount:500, fee:15, status:'SETTLED',  date:'2026-06-08', disbDate:'2026-06-08' },
+  { id:'txn-5', ref:'RBP-20260524-00031', amount:500, fee:15, status:'SETTLED',  date:'2026-05-24', disbDate:'2026-05-24' },
+  { id:'txn-6', ref:'RBP-20260510-00018', amount:300, fee:15, status:'SETTLED',  date:'2026-05-10', disbDate:'2026-05-10' },
+];
+
+const STATUS_CFG = {
+  PENDING:  { label:'Pending',   bg:'rgba(245,158,11,0.1)',   color:'#f59e0b',  dot:'#f59e0b'  },
+  APPROVED: { label:'Approved',  bg:'rgba(59,130,246,0.1)',   color:'#3b82f6',  dot:'#3b82f6'  },
+  DISBURSED:{ label:'Disbursed', bg:'rgba(16,185,129,0.1)',   color:'#10b981',  dot:'#10b981'  },
+  SETTLED:  { label:'Settled',   bg:'rgba(100,116,139,0.15)', color:'#64748b',  dot:'#475569'  },
+  REVERSED: { label:'Reversed',  bg:'rgba(239,68,68,0.1)',    color:'#ef4444',  dot:'#ef4444'  },
+};
+
+function formatR(n){ return 'R'+Number(n).toLocaleString('en-ZA',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function formatDate(d){ return new Date(d).toLocaleDateString('en-ZA',{day:'numeric',month:'long',year:'numeric'}); }
+
+// ── Render helpers ────────────────────────────────────────────
+function txnCard(txn){
+  const cfg = STATUS_CFG[txn.status] || STATUS_CFG.SETTLED;
+  return `
+  <div class="card p-4 flex items-center gap-4">
+    <div class="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center" style="background:#1e293b">
+      <svg width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+    </div>
+    <div class="flex-1 min-w-0">
+      <div class="flex items-center gap-2">
+        <p class="text-white font-bold text-sm">${formatR(txn.amount)}</p>
+        <span class="status-badge text-xs" style="background:${cfg.bg};color:${cfg.color}">
+          <span class="dot" style="background:${cfg.dot}"></span>${cfg.label}
+        </span>
+      </div>
+      <p class="text-slate-500 text-xs font-mono mt-0.5">${txn.ref}</p>
+      <p class="text-slate-600 text-xs">${txn.disbDate ? 'Disbursed '+formatDate(txn.disbDate) : formatDate(txn.date)}</p>
+    </div>
+    <div class="text-right flex-shrink-0">
+      <p class="text-slate-400 text-xs">Fee</p>
+      <p class="text-amber-400 text-xs font-semibold">R${txn.fee}</p>
+    </div>
+  </div>`;
+}
+
+// ── Navigation ────────────────────────────────────────────────
+let currentView = 'dashboard';
+function showView(v){
+  document.querySelectorAll('.view-panel').forEach(p=>p.classList.add('hidden'));
+  document.getElementById('view-'+v).classList.remove('hidden');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active-nav'));
+  const ni = document.getElementById('nav-'+v);
+  if(ni) ni.classList.add('active-nav');
+  document.querySelectorAll('.mob-nav-item').forEach(n=>n.classList.remove('active-mob'));
+  const mi = document.getElementById('mob-'+v);
+  if(mi) mi.classList.add('active-mob');
+  currentView = v;
+  // Fade in
+  const panel = document.getElementById('view-'+v);
+  panel.style.opacity=0; panel.style.transform='translateY(10px)';
+  requestAnimationFrame(()=>{
+    panel.style.transition='opacity .3s ease,transform .3s ease';
+    panel.style.opacity=1; panel.style.transform='translateY(0)';
+  });
+}
+
+// ── Withdraw logic ────────────────────────────────────────────
+function updateSlider(val){
+  const v = Math.min(Math.max(parseFloat(val)||0, 0), MAX_AVAILABLE);
+  document.getElementById('withdrawSlider').value = v;
+  const pct = (v/MAX_AVAILABLE)*100;
+  document.getElementById('withdrawSlider').style.background =
+    `linear-gradient(to right,#10b981 0%,#10b981 ${pct}%,#1e293b ${pct}%,#1e293b 100%)`;
+  updateBreakdown(v);
+}
+function updateAmount(val){
+  const v = Math.min(Math.max(parseFloat(val)||0, 0), MAX_AVAILABLE);
+  document.getElementById('amountInput').value = v;
+  const pct = (v/MAX_AVAILABLE)*100;
+  document.getElementById('withdrawSlider').style.background =
+    `linear-gradient(to right,#10b981 0%,#10b981 ${pct}%,#1e293b ${pct}%,#1e293b 100%)`;
+  updateBreakdown(v);
+}
+function updateBreakdown(v){
+  document.getElementById('bdAmount').textContent = formatR(v);
+  document.getElementById('bdDeduction').textContent = formatR(v+FEE);
+  document.getElementById('bdReceive').textContent = formatR(v);
+  document.getElementById('withdrawBtnText').textContent = `Withdraw ${formatR(v)} Instantly`;
+  const avBar = document.getElementById('availBar');
+  if(avBar) avBar.style.width = ((MAX_AVAILABLE-v)/MAX_AVAILABLE*100*0.294+70.6)+'%';
+}
+function setQuick(pct){
+  const v = Math.round(MAX_AVAILABLE*pct/50)*50;
+  document.getElementById('amountInput').value = v;
+  document.getElementById('withdrawSlider').value = v;
+  updateAmount(v);
+  updateSlider(v);
+}
+
+// ── Transaction filters ───────────────────────────────────────
+let currentFilter = 'all';
+function filterTxns(filter, btn){
+  currentFilter = filter;
+  document.querySelectorAll('.tab').forEach(t=>{t.classList.remove('active')});
+  if(btn) btn.classList.add('active');
+  renderHistory();
+}
+function renderHistory(){
+  const filtered = currentFilter==='all' ? transactions : transactions.filter(t=>t.status===currentFilter);
+  document.getElementById('historyTxnList').innerHTML = filtered.length
+    ? filtered.map(txnCard).join('')
+    : '<p class="text-slate-500 text-sm text-center py-8">No transactions found</p>';
+}
+
+// ── Modal ─────────────────────────────────────────────────────
+let modalPhase = '';
+function openConfirmModal(){
+  const amount = parseFloat(document.getElementById('amountInput').value)||0;
+  if(amount <= FEE){ showToast('Amount must be greater than the R15 fee','error'); return; }
+  if(amount > MAX_AVAILABLE){ showToast('Amount exceeds available balance','error'); return; }
+  showModal('confirm', amount);
+}
+function showModal(phase, amount){
+  modalPhase = phase;
+  const modal = document.getElementById('confirmModal');
+  modal.classList.remove('hidden');
+  modal.classList.add('flex');
+  const content = document.getElementById('modalContent');
+  if(phase === 'confirm'){
+    content.innerHTML = `
+      <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3)">
+        <svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <h2 class="text-white font-black text-xl text-center mb-1">Confirm Withdrawal</h2>
+      <p class="text-slate-400 text-sm text-center mb-5">Review your transaction details</p>
+      <div class="rounded-xl p-4 mb-4 space-y-2.5" style="background:#060d1a;border:1px solid #1e293b">
+        <div class="flex justify-between"><span class="text-slate-400 text-sm">You receive</span><span class="text-brand-400 font-bold">${formatR(amount)}</span></div>
+        <div class="flex justify-between"><span class="text-slate-400 text-sm">To account</span><span class="text-white text-sm font-semibold">Capitec ****4829</span></div>
+        <div class="h-px" style="background:#1e293b"></div>
+        <div class="flex justify-between"><span class="text-slate-400 text-sm">Transaction fee</span><span class="text-amber-400 text-sm font-semibold">R15.00</span></div>
+        <div class="flex justify-between"><span class="text-slate-400 text-sm">Month-end deduction</span><span class="text-white font-bold text-sm">${formatR(amount+FEE)}</span></div>
+      </div>
+      <p class="text-slate-600 text-xs text-center mb-5">${formatR(amount+FEE)} will be deducted from your June 2026 salary</p>
+      <div class="flex gap-3">
+        <button onclick="closeModal()" class="btn-secondary flex-1 py-3.5 rounded-xl text-sm font-semibold">Cancel</button>
+        <button onclick="processWithdrawal(${amount})" class="btn-primary flex-1 py-3.5 rounded-xl text-white text-sm">Confirm & Send</button>
+      </div>`;
+  } else if(phase === 'processing'){
+    content.innerHTML = `
+      <div class="text-center py-4">
+        <div class="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 pulse-ring" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3)">
+          <svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24" class="" style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" stroke-dasharray="60" stroke-dashoffset="20"/>
+          </svg>
+        </div>
+        <h2 class="text-white font-black text-xl mb-1">Processing…</h2>
+        <p class="text-slate-400 text-sm">Sending ${formatR(amount)} to your bank</p>
+        <div class="mt-4 w-full h-1 bg-slate-800 rounded-full overflow-hidden"><div id="progBar" class="h-full rounded-full" style="background:#10b981;width:0%;transition:width .1s linear"></div></div>
+      </div>`;
+    let p=0;
+    const iv = setInterval(()=>{ p+=2; document.getElementById('progBar').style.width=p+'%'; if(p>=100){ clearInterval(iv); setTimeout(()=>showModal('success',amount),200); } },40);
+  } else if(phase === 'success'){
+    const ref = 'RBP-'+new Date().toISOString().slice(0,10).replace(/-/g,'') + '-' + String(Math.floor(Math.random()*99999)).padStart(5,'0');
+    // Add to transaction list
+    transactions.unshift({ id:'txn-new', ref, amount, fee:FEE, status:'DISBURSED', date:new Date().toISOString().slice(0,10), disbDate:new Date().toISOString().slice(0,10) });
+    renderDash(); renderHistory();
+    content.innerHTML = `
+      <div class="text-center">
+        <div class="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4" style="background:#10b981;box-shadow:0 0 0 8px rgba(16,185,129,0.15)">
+          <svg width="28" height="28" fill="none" stroke="white" stroke-width="3" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <h2 class="text-white font-black text-2xl mb-1">Money Sent! 🎉</h2>
+        <p class="text-slate-400 text-sm mb-1">${formatR(amount)} is on its way to</p>
+        <p class="text-brand-400 font-bold text-sm mb-1">Capitec ****4829</p>
+        <p class="text-slate-600 text-xs font-mono mb-5">${ref}</p>
+        <p class="text-slate-500 text-xs mb-6">${formatR(amount+FEE)} will be deducted from your June 2026 salary</p>
+        <button onclick="closeModal()" class="btn-primary w-full py-4 rounded-xl text-white font-bold">Done</button>
+      </div>`;
+  }
+}
+function closeModal(){
+  document.getElementById('confirmModal').classList.add('hidden');
+  document.getElementById('confirmModal').classList.remove('flex');
+}
+async function processWithdrawal(amount){
+  showModal('processing', amount);
+}
+
+// ── Toast ─────────────────────────────────────────────────────
+function showToast(msg, type='success'){
+  const t = document.getElementById('toastEl');
+  t.innerHTML = (type==='error'
+    ? '<svg width="16" height="16" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+    : '<svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>'
+    ) + msg;
+  t.style.borderColor = type==='error'?'rgba(239,68,68,0.3)':'rgba(16,185,129,0.3)';
+  t.classList.remove('hidden');
+  setTimeout(()=>t.classList.add('hidden'), 3500);
+}
+
+// ── Render functions ──────────────────────────────────────────
+function renderDash(){
+  const list = document.getElementById('dashTxnList');
+  if(list) list.innerHTML = transactions.slice(0,3).map(txnCard).join('');
+}
+
+// ── Init ──────────────────────────────────────────────────────
+window.addEventListener('load', ()=>{
+  const bar = document.getElementById('loadBar');
+  let p=0;
+  const iv = setInterval(()=>{ p+=8; bar.style.width=p+'%'; if(p>=100){ clearInterval(iv); setTimeout(()=>{
+    document.getElementById('loadingScreen').style.opacity='0';
+    document.getElementById('loadingScreen').style.transition='opacity .4s';
+    setTimeout(()=>{ document.getElementById('loadingScreen').style.display='none'; document.getElementById('mainApp').classList.remove('hidden'); }, 400);
+    renderDash(); renderHistory();
+    showToast('Welcome back, Nomsa 👋');
+  },300); }},50);
+});
+
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+</script>
+</body>
+</html>
