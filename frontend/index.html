@@ -59,6 +59,7 @@ tailwind.config = {
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
   .toast{position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px;animation:toastIn .3s ease;max-width:320px}
   @keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
 </style>
 </head>
 <body class="dark">
@@ -742,7 +743,7 @@ window.addEventListener('load', ()=>{
   },300); }},50);
 });
 
-@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+
 </script>
 </body>
 </html>
