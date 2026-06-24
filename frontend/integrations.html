@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Rem0Beg Pay — Payroll Integration Console</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#020617;color:#f8fafc;margin:0}
+.mono{font-family:'JetBrains Mono',monospace}
+.card{background:#0f172a;border:1px solid #1e293b;border-radius:14px}
+.btn{cursor:pointer;font-weight:700;font-size:13px;border:none;border-radius:10px;padding:10px 18px;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-green{background:linear-gradient(135deg,#10b981,#059669);color:#fff}
+.btn-green:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(16,185,129,0.35)}
+.btn-green:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.btn-slate{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.btn-slate:hover{border-color:#10b981;color:#10b981}
+.btn-slate.active{background:#10b981;color:#fff;border-color:#10b981}
+.pill{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.pill-green{background:rgba(16,185,129,.15);color:#10b981}
+.pill-amber{background:rgba(245,158,11,.15);color:#f59e0b}
+.pill-red{background:rgba(239,68,68,.15);color:#ef4444}
+.pill-slate{background:rgba(100,116,139,.15);color:#64748b}
+.pill-blue{background:rgba(59,130,246,.15);color:#3b82f6}
+.dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+.log-line{padding:6px 12px;border-radius:6px;font-size:12px;margin-bottom:4px;display:flex;align-items:flex-start;gap:10px}
+.log-info{background:rgba(59,130,246,.08)}
+.log-ok{background:rgba(16,185,129,.08)}
+.log-warn{background:rgba(245,158,11,.08)}
+.log-error{background:rgba(239,68,68,.08)}
+.result-box{background:#060d1a;border:1px solid #1e293b;border-radius:10px;padding:16px;overflow-x:auto;max-height:420px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;color:#64748b;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #1e293b}
+td{padding:9px 12px;border-bottom:1px solid #0f172a;vertical-align:middle}
+tr:hover td{background:rgba(255,255,255,.02)}
+.sidebar-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .2s;border:1px solid transparent;margin-bottom:4px}
+.sidebar-item:hover{background:#1e293b}
+.sidebar-item.active{background:#1e293b;border-color:#10b981}
+.sidebar-item.active .sidebar-label{color:#10b981}
+.sidebar-label{font-size:13px;font-weight:600;color:#64748b}
+.sidebar-item.active .sidebar-label{color:#10b981}
+.spinner{width:16px;height:16px;border:2px solid rgba(16,185,129,.3);border-top-color:#10b981;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tab-btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;background:transparent;color:#64748b;transition:all .2s}
+.tab-btn.active{background:#1e293b;color:#10b981}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.progress{height:4px;background:#1e293b;border-radius:4px;overflow:hidden;margin-top:8px}
+.progress-bar{height:100%;background:linear-gradient(90deg,#10b981,#34d399);border-radius:4px;transition:width .3s}
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav style="background:rgba(2,6,23,.97);border-bottom:1px solid #1e293b;position:sticky;top:0;z-index:40;backdrop-filter:blur(12px)">
+  <div style="max-width:1400px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:between;height:56px">
+    <div style="display:flex;align-items:center;gap:12px;flex:1">
+      <a href="index.html" style="text-decoration:none;display:flex;align-items:center;gap:8px">
+        <div style="width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center">
+          <svg width="16" height="16" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <span style="color:#f8fafc;font-weight:800;font-size:15px">Rem0Beg Pay</span>
+      </a>
+      <span style="color:#334155;font-size:16px">/</span>
+      <span style="color:#10b981;font-weight:700;font-size:13px">Payroll Integration Console</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="globalStatus" class="pill pill-slate"><span class="dot" style="background:#64748b"></span>Disconnected</span>
+      <a href="index.html" class="btn btn-slate" style="font-size:12px;padding:7px 14px">← Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<div style="max-width:1400px;margin:0 auto;padding:24px;display:flex;gap:24px;min-height:calc(100vh - 56px)">
+
+  <!-- ── SIDEBAR ── -->
+  <aside style="width:240px;flex-shrink:0">
+    <div class="card p-4 mb-4">
+      <p style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Payroll Systems</p>
+
+      <div class="sidebar-item active" id="sys-SAGE_300" onclick="selectSystem('SAGE_300')">
+        <div style="width:32px;height:32px;border-radius:8px;background:#1e3a5f;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" fill="#3b82f6" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <div>
+          <p class="sidebar-label" id="lbl-SAGE_300">Sage 300 People</p>
+          <p style="font-size:11px;color:#334155">REST · OAuth2</p>
+        </div>
+      </div>
+
+      <div class="sidebar-item" id="sys-PAYSPACE" onclick="selectSystem('PAYSPACE')">
+        <div style="width:32px;height:32px;border-radius:8px;background:#1e293b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" fill="#8b5cf6" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path fill="#1e293b" d="M12 6v6l4 2"/></svg>
+        </div>
+        <div>
+          <p class="sidebar-label" id="lbl-PAYSPACE">PaySpace</p>
+          <p style="font-size:11px;color:#334155">OData v1.1 · OAuth2</p>
+        </div>
+      </div>
+
+      <div class="sidebar-item" id="sys-PASTEL" onclick="selectSystem('PASTEL')">
+        <div style="width:32px;height:32px;border-radius:8px;background:#1e293b;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <svg width="16" height="16" fill="#f59e0b" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        </div>
+        <div>
+          <p class="sidebar-label" id="lbl-PASTEL">Pastel Payroll</p>
+          <p style="font-size:11px;color:#334155">SFTP · CSV</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Connection config -->
+    <div class="card p-4 mb-4">
+      <p style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Config</p>
+      <div style="margin-bottom:10px">
+        <p style="color:#475569;font-size:11px;font-weight:600;margin-bottom:4px">API Endpoint</p>
+        <p id="cfgEndpoint" class="mono" style="font-size:10px;color:#10b981;word-break:break-all">https://sage300.api.co.za/v1</p>
+      </div>
+      <div style="margin-bottom:10px">
+        <p style="color:#475569;font-size:11px;font-weight:600;margin-bottom:4px">Auth Method</p>
+        <p id="cfgAuth" style="font-size:11px;color:#94a3b8">Bearer OAuth2</p>
+      </div>
+      <div>
+        <p style="color:#475569;font-size:11px;font-weight:600;margin-bottom:4px">API Version</p>
+        <p id="cfgVersion" style="font-size:11px;color:#94a3b8">v3.2.1</p>
+      </div>
+    </div>
+
+    <!-- Sync status -->
+    <div class="card p-4">
+      <p style="color:#64748b;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px">Last Sync</p>
+      <div id="syncStats" style="space-y:8px">
+        <div style="display:flex;justify-content:between;margin-bottom:8px">
+          <span style="color:#64748b;font-size:12px">Status</span>
+          <span id="statStatus" class="pill pill-slate" style="margin-left:auto"><span class="dot" style="background:#64748b"></span>Idle</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="color:#64748b;font-size:12px">Records</span>
+          <span id="statRecords" style="color:#f8fafc;font-size:12px;font-weight:600">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+          <span style="color:#64748b;font-size:12px">Latency</span>
+          <span id="statLatency" style="color:#f8fafc;font-size:12px;font-weight:600">—</span>
+        </div>
+        <div style="display:flex;justify-content:space-between">
+          <span style="color:#64748b;font-size:12px">Errors</span>
+          <span id="statErrors" style="color:#f8fafc;font-size:12px;font-weight:600">—</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN PANEL ── -->
+  <main style="flex:1;min-width:0">
+
+    <!-- Header row -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:gap">
+      <div>
+        <h1 style="color:#f8fafc;font-weight:900;font-size:22px;margin:0" id="mainTitle">Sage 300 People</h1>
+        <p style="color:#475569;font-size:13px;margin:4px 0 0" id="mainSub">REST API · OAuth2 Bearer Token · Realvue Technologies</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-slate" onclick="runAction('test')" id="btnTest">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Test Connection
+        </button>
+        <button class="btn btn-green" onclick="runAll()" id="btnRunAll">
+          <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Run Full Sync
+        </button>
+      </div>
+    </div>
+
+    <!-- Action tabs -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;background:#0f172a;padding:4px;border-radius:10px;border:1px solid #1e293b;width:fit-content;flex-wrap:wrap">
+      <button class="tab-btn active" id="tab-employees" onclick="switchTab('employees')">Employees</button>
+      <button class="tab-btn" id="tab-shifts" onclick="switchTab('shifts')">Today's Shifts</button>
+      <button class="tab-btn" id="tab-payroll" onclick="switchTab('payroll')">Monthly Payroll</button>
+      <button class="tab-btn" id="tab-push" onclick="switchTab('push')">Push Deductions</button>
+    </div>
+
+    <!-- Action bar for each tab -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <button class="btn btn-green" id="btnFetch" onclick="fetchCurrent()">
+        <svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.14"/></svg>
+        <span id="btnFetchLabel">Fetch Employees</span>
+      </button>
+      <span id="fetchStatus" style="color:#475569;font-size:12px"></span>
+      <div style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-slate" onclick="clearResults()" style="padding:8px 12px;font-size:11px">Clear</button>
+        <button class="btn btn-slate" onclick="exportJSON()" style="padding:8px 12px;font-size:11px">↓ Export JSON</button>
+      </div>
+    </div>
+
+    <!-- Results area -->
+    <div class="card" style="padding:20px;margin-bottom:16px;min-height:300px" id="resultsCard">
+      <div id="emptyState" style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:240px;opacity:.5">
+        <svg width="48" height="48" fill="none" stroke="#475569" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <p style="color:#475569;font-size:14px;font-weight:600">Select a system and run a fetch</p>
+        <p style="color:#334155;font-size:12px;margin-top:4px">Results will appear here</p>
+      </div>
+      <div id="resultsContent" style="display:none"></div>
+    </div>
+
+    <!-- Activity Log -->
+    <div class="card" style="padding:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <p style="color:#f8fafc;font-weight:700;font-size:14px;margin:0">Activity Log</p>
+        <button onclick="clearLog()" style="color:#475569;font-size:11px;background:none;border:none;cursor:pointer">Clear log</button>
+      </div>
+      <div id="activityLog" style="font-family:'JetBrains Mono',monospace;max-height:180px;overflow-y:auto">
+        <div class="log-line log-info">
+          <span style="color:#3b82f6;flex-shrink:0">INFO</span>
+          <span style="color:#64748b">${new Date().toLocaleTimeString('en-ZA')} — Payroll Integration Console ready. Select a system to begin.</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────
+let currentSystem = 'SAGE_300';
+let currentTab    = 'employees';
+let lastResult    = null;
+
+const SYS_META = {
+  SAGE_300: {
+    title: 'Sage 300 People',
+    sub:   'REST API · OAuth2 Bearer Token · Realvue Technologies (Pty) Ltd',
+    endpoint: 'https://sage300.api.co.za/v1',
+    auth: 'Bearer OAuth2',
+    version: '3.2.1',
+  },
+  PAYSPACE: {
+    title: 'PaySpace',
+    sub:   'OData v1.1 API · OAuth2 Client Credentials · Amandla Corp',
+    endpoint: 'https://api.payspace.com/odata/v1.1',
+    auth: 'OAuth2 client_credentials',
+    version: 'OData v1.1',
+  },
+  PASTEL: {
+    title: 'Pastel Payroll',
+    sub:   'SFTP / CSV Import · Key-pair Auth · Nkosi Holdings (Pty) Ltd',
+    endpoint: 'sftp://pastel.nkosi.co.za:22',
+    auth: 'SFTP RSA keypair',
+    version: 'CSV/SFTP',
+  },
+};
+
+const TAB_LABELS = {
+  employees: 'Fetch Employees',
+  shifts:    'Fetch Today\'s Shifts',
+  payroll:   'Fetch Monthly Payroll',
+  push:      'Push EWA Deductions',
+};
+
+function ts() { return new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+// ── System switcher ───────────────────────────────────────────
+function selectSystem(sys) {
+  currentSystem = sys;
+  ['SAGE_300','PAYSPACE','PASTEL'].forEach(s => {
+    document.getElementById('sys-'+s).classList.toggle('active', s===sys);
+  });
+  const m = SYS_META[sys];
+  document.getElementById('mainTitle').textContent   = m.title;
+  document.getElementById('mainSub').textContent     = m.sub;
+  document.getElementById('cfgEndpoint').textContent = m.endpoint;
+  document.getElementById('cfgAuth').textContent     = m.auth;
+  document.getElementById('cfgVersion').textContent  = m.version;
+  clearResults();
+  addLog('info', `Switched to ${m.title}`);
+}
+
+// ── Tab switcher ──────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  ['employees','shifts','payroll','push'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+  });
+  document.getElementById('btnFetchLabel').textContent = TAB_LABELS[tab];
+  clearResults();
+}
+
+// ── Fetch actions ─────────────────────────────────────────────
+async function fetchCurrent() {
+  const action = currentTab === 'push' ? 'push_deductions' : currentTab === 'shifts' ? 'shifts' : currentTab;
+  await runAction(action);
+}
+
+async function runAction(action) {
+  const btn = document.getElementById('btnFetch');
+  const btnTest = document.getElementById('btnTest');
+  setLoading(true);
+  addLog('info', `→ ${currentSystem} · action=${action}`);
+
+  const url = `/.netlify/functions/payroll-sync?system=${currentSystem}&action=${action}`;
+
+  try {
+    const t0  = Date.now();
+    const res = await fetch(url);
+    const data = await res.json();
+    const ms  = Date.now() - t0;
+    lastResult = data;
+
+    if (!res.ok) throw new Error(data.error || 'API error');
+
+    document.getElementById('statLatency').textContent = ms+'ms';
+    document.getElementById('statRecords').textContent = data.record_count ?? data.accepted ?? '—';
+    document.getElementById('statErrors').textContent  = (data.errors||[]).length || '0';
+    updateSyncStatus('SUCCESS');
+    document.getElementById('fetchStatus').textContent = `✓ ${ms}ms — ${data.record_count ?? ''} records`;
+
+    renderResult(action, data);
+    addLog('ok', `✓ ${currentSystem} ${action} — ${data.record_count ?? data.accepted ?? 0} records in ${ms}ms`);
+
+    if (action === 'test') {
+      document.getElementById('globalStatus').innerHTML = `<span class="dot" style="background:#10b981"></span>${SYS_META[currentSystem].title} Connected`;
+      document.getElementById('globalStatus').className = 'pill pill-green';
+    }
+  } catch(err) {
+    addLog('error', `✗ ${err.message}`);
+    updateSyncStatus('FAILED');
+    document.getElementById('fetchStatus').textContent = '✗ '+err.message;
+    document.getElementById('resultsContent').innerHTML = `
+      <div style="text-align:center;padding:40px;color:#ef4444">
+        <p style="font-weight:700;margin-bottom:8px">Request Failed</p>
+        <p style="font-size:13px;opacity:.7">${err.message}</p>
+      </div>`;
+    document.getElementById('emptyState').style.display = 'none';
+    document.getElementById('resultsContent').style.display = 'block';
+  } finally {
+    setLoading(false);
+  }
+}
+
+async function runAll() {
+  document.getElementById('btnRunAll').disabled = true;
+  document.getElementById('btnRunAll').innerHTML = '<span class="spinner"></span> Syncing…';
+  addLog('info', `=== Full sync started for ${currentSystem} ===`);
+  for (const action of ['test','employees','shifts','payroll','push_deductions']) {
+    await runAction(action);
+    await new Promise(r => setTimeout(r, 400));
+  }
+  document.getElementById('btnRunAll').disabled = false;
+  document.getElementById('btnRunAll').innerHTML = '<svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> Run Full Sync';
+  addLog('ok', `=== Full sync complete for ${currentSystem} ===`);
+}
+
+// ── Render results ─────────────────────────────────────────────
+function renderResult(action, data) {
+  const c = document.getElementById('resultsContent');
+  document.getElementById('emptyState').style.display = 'none';
+  c.style.display = 'block';
+  c.className = 'fade-in';
+
+  const headerHtml = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap">
+      <span class="pill pill-green"><span class="dot" style="background:#10b981"></span>SUCCESS</span>
+      <span style="color:#64748b;font-size:12px">${data.timestamp}</span>
+      <span class="pill pill-blue">${data.latency_ms}ms</span>
+      ${data.record_count != null ? `<span class="pill pill-slate">${data.record_count} records</span>` : ''}
+      ${(data.quarantine_count||0) > 0 ? `<span class="pill pill-amber">⚠ ${data.quarantine_count} quarantined</span>` : ''}
+    </div>`;
+
+  if (action === 'test') {
+    c.innerHTML = headerHtml + `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        ${Object.entries(data.details||{}).map(([k,v])=>`
+          <div style="background:#060d1a;border:1px solid #1e293b;border-radius:10px;padding:14px">
+            <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700;margin-bottom:4px">${k.replace(/_/g,' ')}</p>
+            <p style="color:#10b981;font-size:13px;font-weight:600;word-break:break-all">${v}</p>
+          </div>`).join('')}
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:10px;padding:14px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700;margin-bottom:4px">Status</p>
+          <p style="color:#10b981;font-size:13px;font-weight:600">${data.status}</p>
+        </div>
+      </div>
+      <div style="margin-top:12px;padding:12px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px">
+        <p style="color:#10b981;font-size:13px;font-weight:600">${data.message}</p>
+      </div>`;
+    return;
+  }
+
+  if (action === 'employees') {
+    const rows = (data.employees||[]).map(e => `
+      <tr>
+        <td><span class="mono" style="color:#64748b;font-size:11px">${e.ref}</span></td>
+        <td style="color:#f8fafc;font-weight:600">${e.name}</td>
+        <td style="color:#94a3b8">${e.title}</td>
+        <td style="color:#94a3b8">${e.dept}</td>
+        <td style="color:#10b981;font-weight:700">R${parseFloat(e.salary).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td style="color:#64748b;font-size:12px">${e.bank}</td>
+        <td><span class="pill ${e.status==='ACTIVE'?'pill-green':'pill-slate'}">${e.status}</span></td>
+      </tr>`).join('');
+
+    const quarantine = data.quarantined?.length ? `
+      <div style="margin-top:16px;padding:12px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:10px">
+        <p style="color:#f59e0b;font-weight:700;font-size:13px;margin-bottom:8px">⚠ ${data.quarantined.length} record(s) quarantined — validation failed</p>
+        ${data.quarantined.map(q=>`<p style="color:#94a3b8;font-size:12px;margin-bottom:4px"><span class="mono" style="color:#f59e0b">${q.ref||'NO_REF'}</span> — ${q.error}</p>`).join('')}
+      </div>` : '';
+
+    c.innerHTML = headerHtml + `
+      <div class="result-box">
+        <table>
+          <thead><tr><th>Ref</th><th>Name</th><th>Job Title</th><th>Department</th><th>Net Salary</th><th>Bank</th><th>Status</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>${quarantine}`;
+    return;
+  }
+
+  if (action === 'shifts') {
+    const rows = (data.shifts||[]).map(s => `
+      <tr>
+        <td><span class="mono" style="color:#64748b;font-size:11px">${s.ref}</span></td>
+        <td style="color:#f8fafc;font-weight:600">${s.name}</td>
+        <td style="color:#94a3b8">${s.clock_in||'—'}</td>
+        <td style="color:#94a3b8">${s.clock_out||'—'}</td>
+        <td style="color:#f8fafc;font-weight:600">${s.hours}h</td>
+        <td><span class="pill ${s.type==='ABSENT'?'pill-red':s.type==='OVERTIME'?'pill-amber':'pill-green'}">${s.type}</span></td>
+        <td style="color:#10b981;font-weight:700">R${parseFloat(s.earned).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+      </tr>`).join('');
+
+    c.innerHTML = headerHtml + `
+      <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:8px;padding:10px 16px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700">Date</p>
+          <p style="color:#10b981;font-weight:700;font-size:13px">${data.date}</p>
+        </div>
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:8px;padding:10px 16px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700">Total Earned Today</p>
+          <p style="color:#10b981;font-weight:700;font-size:13px">R${parseFloat(data.daily_total_earned).toLocaleString('en-ZA',{minimumFractionDigits:2})}</p>
+        </div>
+      </div>
+      <div class="result-box">
+        <table>
+          <thead><tr><th>Ref</th><th>Employee</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Shift</th><th>Earned</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    return;
+  }
+
+  if (action === 'payroll') {
+    const rows = (data.payroll||[]).map(p => `
+      <tr>
+        <td><span class="mono" style="color:#64748b;font-size:11px">${p.ref}</span></td>
+        <td style="color:#f8fafc;font-weight:600">${p.name}</td>
+        <td style="color:#94a3b8">R${parseFloat(p.gross).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td style="color:#ef4444">R${parseFloat(p.paye).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td style="color:#f59e0b">R${parseFloat(p.uif).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td style="color:#10b981;font-weight:700">R${parseFloat(p.net).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td style="color:${parseFloat(p.ewa_deduction)>0?'#f59e0b':'#334155'};font-weight:700">
+          ${parseFloat(p.ewa_deduction)>0 ? 'R'+parseFloat(p.ewa_deduction).toLocaleString('en-ZA',{minimumFractionDigits:2}) : '—'}
+        </td>
+      </tr>`).join('');
+
+    const t = data.totals||{};
+    c.innerHTML = headerHtml + `
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px">
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:8px;padding:10px 14px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700">Total Gross</p>
+          <p style="color:#f8fafc;font-weight:700;font-size:13px">R${parseFloat(t.gross||0).toLocaleString('en-ZA',{minimumFractionDigits:2})}</p>
+        </div>
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:8px;padding:10px 14px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700">Total Net</p>
+          <p style="color:#10b981;font-weight:700;font-size:13px">R${parseFloat(t.net||0).toLocaleString('en-ZA',{minimumFractionDigits:2})}</p>
+        </div>
+        <div style="background:#060d1a;border:1px solid #1e293b;border-radius:8px;padding:10px 14px">
+          <p style="color:#64748b;font-size:10px;text-transform:uppercase;font-weight:700">PAYE Withheld</p>
+          <p style="color:#ef4444;font-weight:700;font-size:13px">R${parseFloat(t.paye||0).toLocaleString('en-ZA',{minimumFractionDigits:2})}</p>
+        </div>
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 14px">
+          <p style="color:#f59e0b;font-size:10px;text-transform:uppercase;font-weight:700">EWA to Deduct</p>
+          <p style="color:#f59e0b;font-weight:800;font-size:14px">R${parseFloat(t.ewa_total||0).toLocaleString('en-ZA',{minimumFractionDigits:2})}</p>
+        </div>
+      </div>
+      <div class="result-box">
+        <table>
+          <thead><tr><th>Ref</th><th>Employee</th><th>Gross</th><th>PAYE</th><th>UIF</th><th>Net Salary</th><th>EWA Deduction</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    return;
+  }
+
+  if (action === 'push_deductions') {
+    const rows = (data.deductions||[]).map(d => `
+      <tr>
+        <td><span class="mono" style="color:#64748b;font-size:11px">${d.ref}</span></td>
+        <td style="color:#f8fafc;font-weight:600">${d.name}</td>
+        <td style="color:#f59e0b;font-weight:700">R${parseFloat(d.amount).toLocaleString('en-ZA',{minimumFractionDigits:2})}</td>
+        <td><span class="pill pill-green"><span class="dot" style="background:#10b981"></span>Queued</span></td>
+      </tr>`).join('');
+
+    c.innerHTML = headerHtml + `
+      <div style="padding:14px;background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.2);border-radius:10px;margin-bottom:14px">
+        <p style="color:#10b981;font-weight:700;font-size:14px">✓ ${data.accepted} deductions pushed to ${data.system}</p>
+        <p style="color:#64748b;font-size:12px;margin-top:4px">Batch reference: <span class="mono" style="color:#94a3b8">${data.batch_ref}</span></p>
+        <p style="color:#64748b;font-size:12px">${data.message}</p>
+      </div>
+      <div class="result-box">
+        <table>
+          <thead><tr><th>Employee Ref</th><th>Employee Name</th><th>EWA Deduction</th><th>Status</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+    return;
+  }
+}
+
+// ── Helpers ───────────────────────────────────────────────────
+function clearResults() {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('resultsContent').style.display = 'none';
+  document.getElementById('resultsContent').innerHTML = '';
+  document.getElementById('fetchStatus').textContent = '';
+  lastResult = null;
+}
+
+function clearLog() {
+  document.getElementById('activityLog').innerHTML = '';
+}
+
+function exportJSON() {
+  if (!lastResult) { addLog('warn','No data to export'); return; }
+  const blob = new Blob([JSON.stringify(lastResult, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${currentSystem}_${currentTab}_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  addLog('ok', `Exported ${a.download}`);
+}
+
+function setLoading(on) {
+  const btn = document.getElementById('btnFetch');
+  btn.disabled = on;
+  btn.innerHTML = on
+    ? '<span class="spinner"></span> Fetching…'
+    : `<svg width="14" height="14" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.14"/></svg><span id="btnFetchLabel">${TAB_LABELS[currentTab]}</span>`;
+}
+
+function updateSyncStatus(status) {
+  const el = document.getElementById('statStatus');
+  const map = { SUCCESS:'pill-green', FAILED:'pill-red', PARTIAL:'pill-amber' };
+  el.className = 'pill '+(map[status]||'pill-slate');
+  el.innerHTML = `<span class="dot" style="background:${status==='SUCCESS'?'#10b981':status==='FAILED'?'#ef4444':'#f59e0b'}"></span>${status}`;
+}
+
+function addLog(type, msg) {
+  const log  = document.getElementById('activityLog');
+  const map  = { info:'log-info', ok:'log-ok', warn:'log-warn', error:'log-error' };
+  const col  = { info:'#3b82f6', ok:'#10b981', warn:'#f59e0b', error:'#ef4444' };
+  const lbl  = { info:'INFO', ok:'OK  ', warn:'WARN', error:'ERR ' };
+  const line = document.createElement('div');
+  line.className = 'log-line '+(map[type]||'log-info');
+  line.innerHTML = `<span style="color:${col[type]};flex-shrink:0;font-weight:700">${lbl[type]}</span><span style="color:#64748b">${ts()} — ${msg}</span>`;
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+</script>
+</body>
+</html>
